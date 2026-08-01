@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "title": "TehivaTour — Travel Agency",
+    "description": "Travel packages, cruises and travel insurance with personalized service."
+  },
+  "nav": {
+    "inicio": "Home",
+    "pacotes": "Packages",
+    "cruzeiros": "Cruises",
+    "seguros": "Insurance",
+    "sobre": "About",
+    "contato": "Contact"
+  },
+  "hero": {
+    "cta": "View deals",
+    "cta_contato": "Contact us"
+  },
+  "categorias": {
+    "titulo": "How can we help you?",
+    "subtitulo": "Choose a category to start planning your next trip",
+    "pacotes": "Travel Packages",
+    "pacotes_desc": "Complete itineraries with flights, accommodation and more.",
+    "cruzeiros": "Cruises & Ship",
+    "cruzeiros_desc": "Amazing seas and destinations on board.",
+    "seguros": "Travel Insurance",
+    "seguros_desc": "Protection and peace of mind in any destination.",
+    "ver_mais": "Explore"
+  },
+  "promocoes": {
+    "titulo": "Promotions",
+    "subtitulo": "Limited-time offers. Grab them before they end!",
+    "valido_ate": "Valid until",
+    "a_partir_de": "from",
+    "ver_pacote": "View offer",
+    "sem_promocoes": "New promotions coming soon. Stay tuned!"
+  },
+  "servicos": {
+    "titulo": "Our Services",
+    "subtitulo": "Everything you need to travel with us"
+  },
+  "pacotes": {
+    "titulo": "Travel Packages",
+    "subtitulo": "Complete itineraries to the destinations of your dreams",
+    "a_partir_de": "from",
+    "destino": "Destination",
+    "duracao": "Duration",
+    "ver_detalhes": "View details",
+    "voltar": "Back",
+    "sem_pacotes": "No packages available right now.",
+    "valido_ate": "Offer valid until",
+    "solicitar_orcamento": "Request a quote",
+    "duracao_nao_informada": "Check duration"
+  },
+  "cruzeiros": {
+    "titulo": "Cruises & Ship",
+    "subtitulo": "Ship itineraries to the most amazing destinations"
+  },
+  "seguros": {
+    "titulo": "Travel Insurance",
+    "subtitulo": "Complete protection to travel with peace of mind"
+  },
+  "sobre": {
+    "titulo": "About Us"
+  },
+  "contato": {
+    "titulo": "Contact",
+    "subtitulo": "Fill out the form or chat on WhatsApp",
+    "form_titulo": "Send us a message",
+    "nome": "Name",
+    "nome_placeholder": "Your name",
+    "email": "E-mail",
+    "email_placeholder": "you@email.com",
+    "telefone": "Phone / WhatsApp",
+    "telefone_placeholder": "(00) 00000-0000",
+    "mensagem": "Message",
+    "mensagem_placeholder": "Tell us what you are looking for...",
+    "enviar": "Send message",
+    "enviando": "Sending...",
+    "sucesso": "Message sent! We will get back to you soon.",
+    "erro": "Could not send. Try again or chat on WhatsApp.",
+    "whatsapp": "Chat on WhatsApp",
+    "info_titulo": "Get in touch",
+    "email_label": "E-mail",
+    "telefone_label": "Phone",
+    "endereco_label": "Address",
+    "horario_titulo": "Opening hours",
+    "horario": "Mon to Fri: 9am to 6pm<br/>Sat: 9am to 1pm"
+  },
+  "whatsapp": {
+    "tooltip": "Chat with us on WhatsApp"
+  },
+  "footer": {
+    "descricao": "Your trusted travel agency. Packages, cruises, insurance and unforgettable experiences.",
+    "links_titulo": "Navigation",
+    "contato_titulo": "Contact",
+    "redes_titulo": "Social media",
+    "direitos": "All rights reserved."
+  },
+  "notfound": {
+    "titulo": "Page not found",
+    "texto": "The page you are looking for does not exist or was removed.",
+    "voltar": "Back to home"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "title": "TehivaTour — Agência de Viagens",
+    "description": "Pacotes de viagem, cruzeiros e seguro viagem com atendimento personalizado."
+  },
+  "nav": {
+    "inicio": "Início",
+    "pacotes": "Pacotes",
+    "cruzeiros": "Cruzeiros",
+    "seguros": "Seguros",
+    "sobre": "Sobre",
+    "contato": "Contato"
+  },
+  "hero": {
+    "cta": "Ver promoções",
+    "cta_contato": "Fale conosco"
+  },
+  "categorias": {
+    "titulo": "Como podemos ajudar você?",
+    "subtitulo": "Escolha uma categoria para começar a planejar sua próxima viagem",
+    "pacotes": "Pacotes de Viagem",
+    "pacotes_desc": "Roteiros completos com passagens, hospedagem e mais.",
+    "cruzeiros": "Cruzeiros & Navio",
+    "cruzeiros_desc": "Mares e destinos incríveis a bordo.",
+    "seguros": "Seguro Viagem",
+    "seguros_desc": "Proteção e tranquilidade em qualquer destino.",
+    "ver_mais": "Explorar"
+  },
+  "promocoes": {
+    "titulo": "Promoções",
+    "subtitulo": "Ofertas por tempo limitado. Aproveite antes que acabe!",
+    "valido_ate": "Válido até",
+    "a_partir_de": "a partir de",
+    "ver_pacote": "Ver oferta",
+    "sem_promocoes": "Em breve novas promoções. Fique de olho!"
+  },
+  "servicos": {
+    "titulo": "Nossos Serviços",
+    "subtitulo": "Tudo o que você precisa para viajar com a gente"
+  },
+  "pacotes": {
+    "titulo": "Pacotes de Viagem",
+    "subtitulo": "Roteiros completos para os destinos dos seus sonhos",
+    "a_partir_de": "a partir de",
+    "destino": "Destino",
+    "duracao": "Duração",
+    "ver_detalhes": "Ver detalhes",
+    "voltar": "Voltar",
+    "sem_pacotes": "Nenhum pacote disponível no momento.",
+    "valido_ate": "Oferta válida até",
+    "solicitar_orcamento": "Solicitar orçamento",
+    "duracao_nao_informada": "Consultar duração"
+  },
+  "cruzeiros": {
+    "titulo": "Cruzeiros & Navio",
+    "subtitulo": "Roteiros de navio para os destinos mais incríveis"
+  },
+  "seguros": {
+    "titulo": "Seguro Viagem",
+    "subtitulo": "Proteção completa para viajar com tranquilidade"
+  },
+  "sobre": {
+    "titulo": "Sobre Nós"
+  },
+  "contato": {
+    "titulo": "Contato",
+    "subtitulo": "Preencha o formulário ou chame no WhatsApp",
+    "form_titulo": "Envie sua mensagem",
+    "nome": "Nome",
+    "nome_placeholder": "Seu nome",
+    "email": "E-mail",
+    "email_placeholder": "voce@email.com",
+    "telefone": "Telefone / WhatsApp",
+    "telefone_placeholder": "(00) 00000-0000",
+    "mensagem": "Mensagem",
+    "mensagem_placeholder": "Conte o que você está procurando...",
+    "enviar": "Enviar mensagem",
+    "enviando": "Enviando...",
+    "sucesso": "Mensagem enviada! Em breve entraremos em contato.",
+    "erro": "Não foi possível enviar. Tente novamente ou chame no WhatsApp.",
+    "whatsapp": "Chamar no WhatsApp",
+    "info_titulo": "Fale com a gente",
+    "email_label": "E-mail",
+    "telefone_label": "Telefone",
+    "endereco_label": "Endereço",
+    "horario_titulo": "Atendimento",
+    "horario": "Seg a Sex: 9h às 18h<br/>Sáb: 9h às 13h"
+  },
+  "whatsapp": {
+    "tooltip": "Fale conosco no WhatsApp"
+  },
+  "footer": {
+    "descricao": "Sua agência de viagens de confiança. Pacotes, cruzeiros, seguros e experiências inesquecíveis.",
+    "links_titulo": "Navegação",
+    "contato_titulo": "Contato",
+    "redes_titulo": "Redes sociais",
+    "direitos": "Todos os direitos reservados."
+  },
+  "notfound": {
+    "titulo": "Página não encontrada",
+    "texto": "A página que você procura não existe ou foi removida.",
+    "voltar": "Voltar ao início"
+  }
+}

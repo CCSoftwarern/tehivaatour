@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## TehivaTour
+
+Site bilíngue (PT/EN) de agência de viagens com painel administrativo.
+
+- **Páginas públicas:** Home, Pacotes, Cruzeiros, Seguros, Sobre e Contato.
+- **Admin:** `/pt/admin` — promoções, pacotes, serviços, mensagens e tema.
+- **Stack:** Next.js 16 (App Router), Tailwind CSS v4, TypeScript, Supabase.
+
+Antes de usar o admin, siga o guia [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
+(criar tabelas, RLS, bucket de imagens, usuário admin e `.env.local`).
+
 ## Getting Started
 
 First, run the development server:
