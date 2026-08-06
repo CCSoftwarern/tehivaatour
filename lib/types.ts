@@ -82,6 +82,32 @@ export interface Arte {
   updated_at: string;
 }
 
+export type TipoItemOrcamento = "padrao" | "imagem";
+
+export interface OrcamentoItem {
+  id: string;
+  tipo: TipoItemOrcamento;
+  descricao: string;
+  tarifa: number;
+  taxas: number;
+  imagem: string | null;
+}
+
+export interface Orcamento {
+  id: string;
+  numero: string;
+  cliente_nome: string;
+  cliente_email: string;
+  cliente_telefone: string;
+  itens: OrcamentoItem[];
+  desconto: number;
+  observacoes: string;
+  validade_dias: number;
+  pdf_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type TipoLogo = "operadora" | "certificado";
 
 export interface Logo {

@@ -128,6 +128,25 @@ create table if not exists public.artes (
   updated_at timestamptz default now()
 );
 
+-- Orçamentos (PDF para o cliente)
+create table if not exists public.orcamentos (
+  id uuid primary key default uuid_generate_v4(),
+  numero text not null default '',
+  cliente_nome text not null default '',
+  cliente_email text not null default '',
+  cliente_telefone text not null default '',
+  itens jsonb not null default '[]'::jsonb,
+  desconto numeric not null default 0,
+  observacoes text not null default '',
+  validade_dias integer not null default 7,
+  pdf_url text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Migração: adiciona desconto em bancos que já criaram a tabela antes
+alter table public.orcamentos add column if not exists desconto numeric not null default 0;
+
 insert into public.contadores (chave, valor)
 values ('visitas', 0)
 on conflict (chave) do nothing;
@@ -160,6 +179,7 @@ create index if not exists idx_servicos_ordem on public.servicos (ordem);
 alter table public.configuracoes enable row level security;
 alter table public.contadores enable row level security;
 alter table public.artes enable row level security;
+alter table public.orcamentos enable row level security;
 alter table public.hero_imagens enable row level security;
 alter table public.logos enable row level security;
 alter table public.promocoes enable row level security;
@@ -191,6 +211,8 @@ create policy "contatos podem inserir" on public.contatos
 create policy "config admin escrita" on public.configuracoes
   for all to authenticated using (true) with check (true);
 create policy "artes admin" on public.artes
+  for all to authenticated using (true) with check (true);
+create policy "orcamentos admin" on public.orcamentos
   for all to authenticated using (true) with check (true);
 create policy "hero admin escrita" on public.hero_imagens
   for all to authenticated using (true) with check (true);

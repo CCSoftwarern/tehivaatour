@@ -43,6 +43,8 @@ Entre em `/pt/admin` com o e-mail/senha criados e configure:
 - [ ] **Pacotes / Promoções**: cadastre os produtos do cliente.
 - [ ] **Editor de arte**: teste a criação de um post de pacote e a exportação
       em PNG (botão "Copiar" cola direto no WhatsApp).
+- [ ] **Orçamentos**: gere um orçamento de teste (com item com imagem) e confira
+      o PDF (cabeçalho, marca d'água, valor total e rodapé) e o link gerado.
 
 ## 4. Entrega ao cliente (10 min)
 
@@ -60,6 +62,7 @@ Entre em `/pt/admin` com o e-mail/senha criados e configure:
 - [ ] Logo do cliente aparece no cabeçalho.
 - [ ] Cores/credito do rodapé conforme combinado.
 - [ ] Contador de visitas no dashboard incrementa (acessar o site uma vez).
+- [ ] Orçamento em PDF abre no navegador/mobile e mostra marca d'água + total.
 
 ## Faturamento sugerido
 

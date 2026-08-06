@@ -13,7 +13,8 @@ type Props = {
     | "contatos"
     | "hero_imagens"
     | "logos"
-    | "artes";
+    | "artes"
+    | "orcamentos";
   id: string;
   redirectTo?: string;
 };

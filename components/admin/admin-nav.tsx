@@ -5,12 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Award,
   Brush,
+  FileText,
   Images,
   LayoutDashboard,
   LogOut,
   MessageSquare,
-  Palette,
   Package,
+  Palette,
   Settings,
   Tag,
 } from "lucide-react";
@@ -31,6 +32,7 @@ export function AdminNav({ lang }: Props) {
     { href: `/${lang}/admin/servicos`, label: "Serviços", icon: Settings },
     { href: `/${lang}/admin/hero`, label: "Banner", icon: Images },
     { href: `/${lang}/admin/artes`, label: "Editor de arte", icon: Brush },
+    { href: `/${lang}/admin/orcamentos`, label: "Orçamentos", icon: FileText },
     { href: `/${lang}/admin/logos`, label: "Logos do rodapé", icon: Award },
     { href: `/${lang}/admin/mensagens`, label: "Mensagens", icon: MessageSquare },
     { href: `/${lang}/admin/configuracoes`, label: "Configurações", icon: Palette },
