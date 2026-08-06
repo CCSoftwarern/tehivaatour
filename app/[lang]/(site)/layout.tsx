@@ -3,6 +3,7 @@ import { getSiteConfig } from "@/lib/queries";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { FloatingWhatsApp } from "@/components/whatsapp-button";
+import { VisitCounter } from "@/components/visit-counter";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,7 @@ export default async function SiteLayout({
       <main className="flex-1">{children}</main>
       <Footer lang={lang} dict={dict} config={config} />
       <FloatingWhatsApp whatsapp={config.whatsapp} />
+      <VisitCounter />
     </>
   );
 }

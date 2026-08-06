@@ -6,7 +6,14 @@ import { Loader2, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
-  tabela: "promocoes" | "pacotes" | "servicos" | "contatos" | "hero_imagens";
+  tabela:
+    | "promocoes"
+    | "pacotes"
+    | "servicos"
+    | "contatos"
+    | "hero_imagens"
+    | "logos"
+    | "artes";
   id: string;
   redirectTo?: string;
 };

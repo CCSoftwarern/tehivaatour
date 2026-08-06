@@ -34,6 +34,18 @@ create table if not exists public.hero_imagens (
   created_at timestamptz default now()
 );
 
+-- Logos de operadoras e certificados (rodapé)
+create table if not exists public.logos (
+  id uuid primary key default uuid_generate_v4(),
+  url text not null,
+  titulo text,
+  link text,
+  tipo text not null default 'operadora' check (tipo in ('operadora', 'certificado')),
+  ordem integer default 0,
+  ativo boolean default true,
+  created_at timestamptz default now()
+);
+
 -- Promoções
 create table if not exists public.promocoes (
   id uuid primary key default uuid_generate_v4(),
@@ -100,9 +112,42 @@ create table if not exists public.contatos (
   created_at timestamptz default now()
 );
 
--- =============================================================
+-- Contadores (visitas ao site)
+create table if not exists public.contadores (
+  chave text primary key,
+  valor bigint not null default 0
+);
+
+-- Designs do editor de arte (posts para Instagram/WhatsApp)
+create table if not exists public.artes (
+  id uuid primary key default uuid_generate_v4(),
+  nome text not null default 'Design sem nome',
+  dados jsonb not null default '{}'::jsonb,
+  thumb_url text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+insert into public.contadores (chave, valor)
+values ('visitas', 0)
+on conflict (chave) do nothing;
+
+-- Incrementa um contador e retorna o novo valor (seguro para público)
+create or replace function public.incrementar_visita(p_chave text)
+returns bigint
+language sql
+security definer
+set search_path = public
+as $$
+  insert into public.contadores (chave, valor)
+  values (p_chave, 1)
+  on conflict (chave) do update set valor = public.contadores.valor + 1
+  returning valor;
+$$;
+
+grant execute on function public.incrementar_visita(text) to anon, authenticated;
+
 -- Índices
--- =============================================================
 create index if not exists idx_promocoes_vencimento on public.promocoes (vencimento);
 create index if not exists idx_promocoes_ativo on public.promocoes (ativo);
 create index if not exists idx_pacotes_slug on public.pacotes (slug);
@@ -113,7 +158,10 @@ create index if not exists idx_servicos_ordem on public.servicos (ordem);
 -- RLS
 -- =============================================================
 alter table public.configuracoes enable row level security;
+alter table public.contadores enable row level security;
+alter table public.artes enable row level security;
 alter table public.hero_imagens enable row level security;
+alter table public.logos enable row level security;
 alter table public.promocoes enable row level security;
 alter table public.pacotes enable row level security;
 alter table public.servicos enable row level security;
@@ -122,7 +170,11 @@ alter table public.contatos enable row level security;
 -- Público (site): só leitura
 create policy "config leitura publica" on public.configuracoes
   for select using (true);
+create policy "contadores leitura publica" on public.contadores
+  for select using (true);
 create policy "hero leitura publica" on public.hero_imagens
+  for select using (true);
+create policy "logos leitura publica" on public.logos
   for select using (true);
 create policy "promocoes leitura publica" on public.promocoes
   for select using (true);
@@ -138,7 +190,11 @@ create policy "contatos podem inserir" on public.contatos
 -- Autenticados (admin): escrita em tudo
 create policy "config admin escrita" on public.configuracoes
   for all to authenticated using (true) with check (true);
+create policy "artes admin" on public.artes
+  for all to authenticated using (true) with check (true);
 create policy "hero admin escrita" on public.hero_imagens
+  for all to authenticated using (true) with check (true);
+create policy "logos admin escrita" on public.logos
   for all to authenticated using (true) with check (true);
 create policy "promocoes admin escrita" on public.promocoes
   for all to authenticated using (true) with check (true);
@@ -206,8 +262,8 @@ Reinicie o servidor (`npm run dev`) após salvar o `.env.local`.
 
 - Abra `http://localhost:3000/pt/admin/login`
 - Entre com o e-mail/senha criados no passo 3.
-- No admin você gerencia: promoções, pacotes, serviços, mensagens e o tema do
-  site (cores e textos).
+- No admin você gerencia: promoções, pacotes, serviços, mensagens, o tema do
+  site (cores e textos) e o **editor de arte** (posts para Instagram/WhatsApp).
 
 ## 6. Deploy
 

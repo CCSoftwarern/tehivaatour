@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageSquare, Package, Tag } from "lucide-react";
+import { Eye, MessageSquare, Package, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { cardClass } from "@/components/admin/ui";
 
@@ -13,19 +13,22 @@ export default async function AdminDashboard({
   const { lang } = await params;
   const supabase = await createClient();
 
-  const [promocoes, pacotes, servicos, contatos] = await Promise.all([
+  const [promocoes, pacotes, servicos, contatos, contador] = await Promise.all([
     supabase.from("promocoes").select("*", { count: "exact", head: true }),
     supabase.from("pacotes").select("*", { count: "exact", head: true }),
     supabase.from("servicos").select("*", { count: "exact", head: true }),
     supabase.from("contatos").select("*"),
+    supabase.from("contadores").select("*").eq("chave", "visitas").maybeSingle(),
   ]);
 
   const novas = (contatos.data ?? []).filter((c) => c.status === "nova").length;
+  const visitas = contador.data?.valor ?? 0;
 
   const cards = [
     { label: "Promoções", valor: promocoes.count ?? 0, icon: Tag, href: `/${lang}/admin/promocoes` },
     { label: "Pacotes", valor: pacotes.count ?? 0, icon: Package, href: `/${lang}/admin/pacotes` },
     { label: "Mensagens novas", valor: novas, icon: MessageSquare, href: `/${lang}/admin/mensagens` },
+    { label: "Visitas", valor: visitas, icon: Eye, href: null },
   ];
 
   const recentes = (contatos.data ?? []).slice(0, 5);
@@ -37,18 +40,29 @@ export default async function AdminDashboard({
         Visão geral do seu conteúdo no site.
       </p>
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-3">
-        {cards.map((card) => (
-          <Link key={card.href} href={card.href} className={cardClass}>
-            <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-primary/10 text-primary">
-              <card.icon size={22} />
-            </span>
-            <p className="mt-4 text-3xl font-black text-primary-dark">
-              {card.valor}
-            </p>
-            <p className="mt-1 text-sm font-medium text-ink/60">{card.label}</p>
-          </Link>
-        ))}
+      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((card) => {
+          const conteudo = (
+            <>
+              <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-primary/10 text-primary">
+                <card.icon size={22} />
+              </span>
+              <p className="mt-4 text-3xl font-black text-primary-dark">
+                {card.valor.toLocaleString("pt-BR")}
+              </p>
+              <p className="mt-1 text-sm font-medium text-ink/60">{card.label}</p>
+            </>
+          );
+          return card.href ? (
+            <Link key={card.href} href={card.href} className={cardClass}>
+              {conteudo}
+            </Link>
+          ) : (
+            <div key={card.label} className={cardClass}>
+              {conteudo}
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-10">

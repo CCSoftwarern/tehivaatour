@@ -72,3 +72,25 @@ export interface HeroImagem {
   ativo: boolean;
   created_at: string;
 }
+
+export interface Arte {
+  id: string;
+  nome: string;
+  dados: Record<string, unknown>;
+  thumb_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TipoLogo = "operadora" | "certificado";
+
+export interface Logo {
+  id: string;
+  url: string;
+  titulo: string | null;
+  link: string | null;
+  tipo: TipoLogo;
+  ordem: number;
+  ativo: boolean;
+  created_at: string;
+}

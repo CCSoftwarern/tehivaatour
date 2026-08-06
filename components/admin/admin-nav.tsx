@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Award,
+  Brush,
   Images,
   LayoutDashboard,
   LogOut,
@@ -28,6 +30,8 @@ export function AdminNav({ lang }: Props) {
     { href: `/${lang}/admin/pacotes`, label: "Pacotes", icon: Package },
     { href: `/${lang}/admin/servicos`, label: "Serviços", icon: Settings },
     { href: `/${lang}/admin/hero`, label: "Banner", icon: Images },
+    { href: `/${lang}/admin/artes`, label: "Editor de arte", icon: Brush },
+    { href: `/${lang}/admin/logos`, label: "Logos do rodapé", icon: Award },
     { href: `/${lang}/admin/mensagens`, label: "Mensagens", icon: MessageSquare },
     { href: `/${lang}/admin/configuracoes`, label: "Configurações", icon: Palette },
   ];
@@ -43,7 +47,7 @@ export function AdminNav({ lang }: Props) {
     <aside className="w-64 shrink-0 bg-primary-dark text-white min-h-screen flex flex-col">
       <div className="px-5 py-6 border-b border-white/10">
         <p className="text-xl font-black">
-          {lang === "pt" ? "Painel" : "Admin"} TehivaTour
+          {lang === "pt" ? "Painel Adm" : "Admin"}
         </p>
         <p className="text-xs text-white/60 mt-1">
           {lang === "pt" ? "Gestão do site" : "Site management"}

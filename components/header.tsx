@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Globe, Mail, Menu, Phone, X } from "lucide-react";
@@ -72,9 +73,19 @@ export default function Header({ lang, dict, config }: Props) {
       <div className="bg-white/95 backdrop-blur border-b border-line">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between gap-4">
           <Link href={`/${lang}`} className="flex items-center gap-2 group">
-            <span className="grid place-items-center w-9 h-9 rounded-lg bg-primary text-white font-black text-lg group-hover:bg-primary-dark transition-colors">
-              T
-            </span>
+            {config.logo_url ? (
+              <Image
+                src={config.logo_url}
+                alt={config.site_nome || "Logo"}
+                width={36}
+                height={36}
+                className="h-9 w-auto max-w-[140px] object-contain"
+              />
+            ) : (
+              <span className="grid place-items-center w-9 h-9 rounded-lg bg-primary text-white font-black text-lg group-hover:bg-primary-dark transition-colors">
+                T
+              </span>
+            )}
             <span className="text-xl font-black tracking-tight text-primary-dark">
               {config.site_nome || "TehivaTour"}
             </span>

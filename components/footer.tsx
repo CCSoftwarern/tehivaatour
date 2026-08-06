@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, MapPin, Phone } from "lucide-react";
 import type { Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
 import type { ConfigRecord } from "@/lib/config";
+import { getLogos } from "@/lib/queries";
 
 function InstagramIcon({ size = 16 }: { size?: number }) {
   return (
@@ -46,7 +48,12 @@ type Props = {
   config: ConfigRecord;
 };
 
-export default function Footer({ lang, dict, config }: Props) {
+export default async function Footer({ lang, dict, config }: Props) {
+  const [operadoras, certificados] = await Promise.all([
+    getLogos("operadora"),
+    getLogos("certificado"),
+  ]);
+
   const links = [
     { href: `/${lang}`, label: dict.nav.inicio },
     { href: `/${lang}/pacotes`, label: dict.nav.pacotes },
@@ -146,12 +153,84 @@ export default function Footer({ lang, dict, config }: Props) {
         </div>
       </div>
 
+      {(operadoras.length > 0 || certificados.length > 0) && (
+        <div className="border-t border-white/10 bg-white/[0.03]">
+          <div className="mx-auto max-w-7xl px-4 py-8 space-y-6">
+            {operadoras.length > 0 && (
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-white/60 mb-4">
+                  {dict.footer.operadoras_titulo}
+                </h3>
+                <div className="flex flex-wrap items-center gap-4">
+                  {operadoras.map((logo) => (
+                    <div
+                      key={logo.id}
+                      className="grid place-items-center h-14 w-32 rounded-xl bg-white/10 px-3 transition-colors hover:bg-white/20"
+                    >
+                      <Image
+                        src={logo.url}
+                        alt={logo.titulo ?? ""}
+                        width={120}
+                        height={40}
+                        className="max-h-10 w-auto object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {certificados.length > 0 && (
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-white/60 mb-4">
+                  {dict.footer.certificados_titulo}
+                </h3>
+                <div className="flex flex-wrap items-center gap-4">
+                  {certificados.map((logo) => (
+                    <div
+                      key={logo.id}
+                      className="grid place-items-center h-14 w-32 rounded-xl bg-white/10 px-3 transition-colors hover:bg-white/20"
+                    >
+                      <Image
+                        src={logo.url}
+                        alt={logo.titulo ?? ""}
+                        width={120}
+                        height={40}
+                        className="max-h-10 w-auto object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-5 text-xs text-white/50 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>
             © {new Date().getFullYear()} {config.site_nome || "TehivaTour"}.{" "}
             {dict.footer.direitos}
           </span>
+          {config.credito_dev === "1" && (
+            <span>
+              Desenvolvido por{" "}
+              {config.credito_url ? (
+                <a
+                  href={config.credito_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/70 hover:text-white underline"
+                >
+                  {config.credito_nome || "CC Software"}
+                </a>
+              ) : (
+                <span className="text-white/70">
+                  {config.credito_nome || "CC Software"}
+                </span>
+              )}
+            </span>
+          )}
         </div>
       </div>
     </footer>

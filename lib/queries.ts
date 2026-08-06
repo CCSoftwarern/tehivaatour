@@ -3,7 +3,16 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { defaultConfig, type ConfigRecord } from "@/lib/config";
-import type { Categoria, Contato, HeroImagem, Pacote, Promocao, Servico } from "@/lib/types";
+import type {
+  Categoria,
+  Contato,
+  HeroImagem,
+  Logo,
+  Pacote,
+  Promocao,
+  Servico,
+  TipoLogo,
+} from "@/lib/types";
 
 function now(): string {
   return new Date().toISOString();
@@ -123,6 +132,20 @@ export async function getHeroImagens(): Promise<HeroImagem[]> {
 
   if (error) return [];
   return (data ?? []) as HeroImagem[];
+}
+
+export async function getLogos(tipo?: TipoLogo): Promise<Logo[]> {
+  if (!isSupabaseConfigured) return [];
+  const supabase = await createClient();
+  let query = supabase
+    .from("logos")
+    .select("*")
+    .eq("ativo", true)
+    .order("ordem", { ascending: true });
+  if (tipo) query = query.eq("tipo", tipo);
+  const { data, error } = await query;
+  if (error) return [];
+  return (data ?? []) as Logo[];
 }
 
 /** Admin — apenas para usuários autenticados (RLS). */

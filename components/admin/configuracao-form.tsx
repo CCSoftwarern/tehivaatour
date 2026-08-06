@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Save } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { ConfigRecord } from "@/lib/config";
+import { ImageUpload } from "./imagem-upload";
 import { btnPrimary, cardClass, inputClass, labelClass } from "./ui";
 
 type Props = {
@@ -16,6 +17,7 @@ export function ConfiguracaoForm({ config }: Props) {
   const [pending, setPending] = useState(false);
   const [salvo, setSalvo] = useState(false);
   const [erro, setErro] = useState("");
+  const [logo, setLogo] = useState(config.logo_url ?? "");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,6 +84,11 @@ export function ConfiguracaoForm({ config }: Props) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className={`${cardClass} space-y-4`}>
         <h2 className="font-bold text-primary-dark">Identidade e contato</h2>
+        <div>
+          <label className={labelClass}>Logo (cabeçalho)</label>
+          <ImageUpload value={logo || null} onChange={(url) => setLogo(url ?? "")} pasta="logos" />
+          <input type="hidden" name="logo_url" value={logo} />
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {campo("site_nome", "Nome do site")}
           {campo("whatsapp", "WhatsApp (DDI + número, ex: 5511999998888)")}
@@ -90,6 +97,34 @@ export function ConfiguracaoForm({ config }: Props) {
           {campo("endereco", "Endereço")}
           {campo("instagram", "Instagram (URL)")}
           {campo("facebook", "Facebook (URL)")}
+        </div>
+      </div>
+
+      <div className={`${cardClass} space-y-4`}>
+        <h2 className="font-bold text-primary-dark">Crédito no rodapé</h2>
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input
+            type="checkbox"
+            name="credito_dev"
+            value="1"
+            defaultChecked={config.credito_dev === "1"}
+            className="h-4 w-4 accent-[var(--cor-primaria)]"
+          />
+          Exibir &quot;Desenvolvido por&quot; no rodapé
+        </label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {campo(
+            "credito_nome",
+            "Nome do desenvolvedor/agência",
+            <p className="mt-1 text-xs text-ink/50">Ex: CC Software</p>,
+          )}
+          {campo(
+            "credito_url",
+            "Link (opcional)",
+            <p className="mt-1 text-xs text-ink/50">
+              Ex: https://seusite.com.br — deixa vazio para sem link
+            </p>,
+          )}
         </div>
       </div>
 
