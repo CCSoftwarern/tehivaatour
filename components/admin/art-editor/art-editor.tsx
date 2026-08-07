@@ -13,6 +13,16 @@ import {
   templateNovoPacote,
   templatePromocao,
   templateSobre,
+  templateNatal,
+  templateAnoNovo,
+  templateDiaDasMaes,
+  templatePascoa,
+  templateBlackFriday,
+  templateDiaDosPais,
+  templateDiaDosNamorados,
+  templateCarnaval,
+  templateVerao,
+  templateInverno,
   type ItemPost,
 } from "@/lib/arte/templates";
 import type { ConfigRecord } from "@/lib/config";
@@ -21,6 +31,7 @@ import { ArtToolbar } from "./art-toolbar";
 import { ArtProperties } from "./art-properties";
 import { ArtTemplates } from "./art-templates";
 import { ArtPacoteModal } from "./art-pacote-modal";
+import { ZoomControls } from "./zoom-controls";
 
 type Props = {
   lang: string;
@@ -40,6 +51,10 @@ export function ArtEditor({ lang, designInicial, config, arteId }: Props) {
   const [nome, setNome] = useState(designInicial.nome || "Design sem nome");
   const [salvando, setSalvando] = useState(false);
   const [salvo, setSalvo] = useState(false);
+
+  const [zoom, setZoom] = useState(1);
+  const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
+  const [fitEscala, setFitEscala] = useState(1);
 
   const stageRef = useRef<Konva.Stage | null>(null);
   const snapshotRef = useRef<ArtDesign>(estado);
@@ -156,7 +171,7 @@ export function ArtEditor({ lang, designInicial, config, arteId }: Props) {
   }, [aplicar, estado.largura, config]);
 
   const adicionarForma = useCallback(
-    (tipo: "retangulo" | "circulo" | "linha") => {
+    (tipo: "retangulo" | "circulo" | "linha" | "triangulo" | "estrela" | "poligono" | "seta") => {
       const largura = estado.largura;
       const altura = estado.altura;
       const destaque = config.cor_destaque || "#ff6b35";
@@ -188,6 +203,63 @@ export function ArtEditor({ lang, designInicial, config, arteId }: Props) {
           opacity: 1,
           cor: primaria,
           larguraContorno: 0,
+        };
+      } else if (tipo === "triangulo") {
+        el = {
+          id: novoId(),
+          tipo: "triangulo",
+          x: Math.round((largura - 260) / 2),
+          y: Math.round((altura - 260) / 2),
+          width: 260,
+          height: 260,
+          rotation: 0,
+          opacity: 1,
+          cor: destaque,
+          larguraContorno: 0,
+        };
+      } else if (tipo === "estrela") {
+        el = {
+          id: novoId(),
+          tipo: "estrela",
+          x: Math.round((largura - 260) / 2),
+          y: Math.round((altura - 260) / 2),
+          width: 260,
+          height: 260,
+          rotation: 0,
+          opacity: 1,
+          cor: destaque,
+          larguraContorno: 0,
+          pontas: 5,
+          raioInterno: 0.5,
+        };
+      } else if (tipo === "poligono") {
+        el = {
+          id: novoId(),
+          tipo: "poligono",
+          x: Math.round((largura - 260) / 2),
+          y: Math.round((altura - 260) / 2),
+          width: 260,
+          height: 260,
+          rotation: 0,
+          opacity: 1,
+          cor: primaria,
+          larguraContorno: 0,
+          lados: 6,
+        };
+      } else if (tipo === "seta") {
+        el = {
+          id: novoId(),
+          tipo: "seta",
+          x: 80,
+          y: Math.round(altura / 2),
+          width: Math.max(200, largura - 160),
+          height: 100,
+          rotation: 0,
+          opacity: 1,
+          cor: destaque,
+          larguraContorno: 0,
+          pontaComprimento: 30,
+          pontaLargura: 40,
         };
       } else {
         el = {
@@ -266,12 +338,22 @@ export function ArtEditor({ lang, designInicial, config, arteId }: Props) {
   );
 
   const aplicarTemplate = useCallback(
-    (tipo: "promocao" | "novo_pacote" | "dica" | "sobre") => {
+    (tipo: "promocao" | "novo_pacote" | "dica" | "sobre" | "natal" | "ano_novo" | "dia_das_maes" | "pascoa" | "black_friday" | "dia_dos_pais" | "dia_dos_namorados" | "carnaval" | "verao" | "inverno") => {
       const construtores = {
         promocao: templatePromocao,
         novo_pacote: templateNovoPacote,
         dica: templateDica,
         sobre: templateSobre,
+        natal: templateNatal,
+        ano_novo: templateAnoNovo,
+        dia_das_maes: templateDiaDasMaes,
+        pascoa: templatePascoa,
+        black_friday: templateBlackFriday,
+        dia_dos_pais: templateDiaDosPais,
+        dia_dos_namorados: templateDiaDosNamorados,
+        carnaval: templateCarnaval,
+        verao: templateVerao,
+        inverno: templateInverno,
       };
       aplicar(() => ({ ...construtores[tipo](config), nome }));
       setSelecionadoId(null);
@@ -418,45 +500,60 @@ export function ArtEditor({ lang, designInicial, config, arteId }: Props) {
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <ArtToolbar
-        nome={nome}
-        onNome={setNome}
-        largura={estado.largura}
-        altura={estado.altura}
-        onTamanho={mudarTamanho}
-        onAdicionarTexto={adicionarTexto}
-        onArquivoImagem={adicionarImagem}
-        onAdicionarForma={adicionarForma}
-        podeDesfazer={historico.podeDesfazer}
-        podeRefazer={historico.podeRefazer}
-        onDesfazer={desfazer}
-        onRefazer={refazer}
-        onTemplates={() => setMostrarTemplates(true)}
-        onPacote={() => setMostrarPacote(true)}
-        onSalvar={salvar}
-        onCopiar={copiarPng}
-        onBaixar={baixarPng}
-        salvando={salvando}
-        salvo={salvo}
-        temSelecao={Boolean(selecionado)}
-        onDuplicarSelecao={() => selecionadoId && duplicarElemento(selecionadoId)}
-        onExcluirSelecao={() => selecionadoId && excluirElemento(selecionadoId)}
-        onFrenteSelecao={() => selecionadoId && trazerFrente(selecionadoId)}
-        onTrasSelecao={() => selecionadoId && trazerTras(selecionadoId)}
-      />
+<ArtToolbar
+          nome={nome}
+          onNome={setNome}
+          largura={estado.largura}
+          altura={estado.altura}
+          onTamanho={mudarTamanho}
+          onAdicionarTexto={adicionarTexto}
+          onArquivoImagem={adicionarImagem}
+          onAdicionarForma={adicionarForma}
+          podeDesfazer={historico.podeDesfazer}
+          podeRefazer={historico.podeRefazer}
+          onDesfazer={desfazer}
+          onRefazer={refazer}
+          onTemplates={() => setMostrarTemplates(true)}
+          onPacote={() => setMostrarPacote(true)}
+          onSalvar={salvar}
+          onCopiar={copiarPng}
+          onBaixar={baixarPng}
+          salvando={salvando}
+          salvo={salvo}
+          temSelecao={Boolean(selecionado)}
+          onDuplicarSelecao={() => selecionadoId && duplicarElemento(selecionadoId)}
+          onExcluirSelecao={() => selecionadoId && excluirElemento(selecionadoId)}
+          onFrenteSelecao={() => selecionadoId && trazerFrente(selecionadoId)}
+          onTrasSelecao={() => selecionadoId && trazerTras(selecionadoId)}
+          zoom={zoom}
+          onZoom={setZoom}
+          onZoomPos={setZoomPos}
+        />
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row">
-        <div className="min-h-[440px] flex-1 overflow-hidden rounded-2xl border border-line bg-slate-100 lg:min-h-0">
-          <ArtStage
-            estado={estado}
-            selecionadoId={selecionadoId}
-            onSelecionar={setSelecionadoId}
-            onDragStart={onDragStart}
-            onChange={onChangeStage}
-            onDragEnd={onDragEnd}
-            stageRef={stageRef}
-          />
-        </div>
+        <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row">
+          <div className="relative min-h-[440px] flex-1 overflow-hidden rounded-2xl border border-line bg-slate-100 lg:min-h-0">
+            <ArtStage
+              estado={estado}
+              selecionadoId={selecionadoId}
+              onSelecionar={setSelecionadoId}
+              onDragStart={onDragStart}
+              onChange={onChangeStage}
+              onDragEnd={onDragEnd}
+              stageRef={stageRef}
+              zoom={zoom}
+              zoomPos={zoomPos}
+              onZoomPos={setZoomPos}
+              onFitEscala={setFitEscala}
+            />
+            <ZoomControls
+              zoom={zoom}
+              onZoom={setZoom}
+              onZoomPos={setZoomPos}
+              largura={estado.largura}
+              altura={estado.altura}
+              fitEscala={fitEscala}
+            />
+          </div>
         <aside className="w-full shrink-0 overflow-y-auto rounded-2xl border border-line bg-white p-4 lg:w-80">
           <ArtProperties
             selecionado={selecionado}

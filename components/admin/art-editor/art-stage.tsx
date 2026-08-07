@@ -11,6 +11,9 @@ import {
   Rect,
   Stage,
   Text as KonvaText,
+  Star as KonvaStar,
+  RegularPolygon,
+  Arrow as KonvaArrow,
 } from "react-konva";
 import type { ArtDesign, ArtElemento, ArtFundo, ArtImagem, ArtTexto } from "@/lib/arte/tipos";
 import { useArtImagem } from "./use-art-imagem";
@@ -35,6 +38,10 @@ type Props = {
   onChange: (novo: ArtDesign) => void;
   onDragEnd: () => void;
   stageRef: React.MutableRefObject<Konva.Stage | null>;
+  zoom: number;
+  zoomPos: { x: number; y: number };
+  onZoomPos: (pos: { x: number; y: number }) => void;
+  onFitEscala: (escala: number) => void;
 };
 
 const ALCAS: { fx: number; fy: number; dx: -1 | 0 | 1; dy: -1 | 0 | 1 }[] = [
@@ -56,37 +63,156 @@ export function ArtStage({
   onChange,
   onDragEnd,
   stageRef,
+  zoom,
+  zoomPos,
+  onZoomPos,
+  onFitEscala,
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const canvasWrapperRef = useRef<HTMLDivElement>(null);
   const estadoRef = useRef(estado);
+  const isPanningRef = useRef(false);
+  const panStartRef = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
   useEffect(() => {
     estadoRef.current = estado;
   }, [estado]);
 
-  const [fit, setFit] = useState({ w: 600, h: 600, escala: 1 });
+  const [fit, setFit] = useState({ escala: 1 });
+
+  const recalcularFit = useCallback(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const largura = Math.max(280, r.width);
+    const altura = Math.max(280, r.height);
+    const escala = Math.min(1, largura / estadoRef.current.largura, altura / estadoRef.current.altura);
+    setFit({ escala });
+    onFitEscala(escala);
+  }, [onFitEscala]);
 
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      const r = el.getBoundingClientRect();
-      const largura = Math.max(280, r.width - 16);
-      const altura = Math.max(280, r.height - 16);
-      const escala = Math.min(
-        1,
-        largura / estadoRef.current.largura,
-        altura / estadoRef.current.altura,
-      );
-      setFit({
-        w: estadoRef.current.largura * escala,
-        h: estadoRef.current.altura * escala,
-        escala,
-      });
+      recalcularFit();
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [recalcularFit]);
+
+  useEffect(() => {
+    recalcularFit();
+  }, [estado.largura, estado.altura, recalcularFit]);
+
+  // Keyboard nudge for selected element
+  useEffect(() => {
+    if (!selecionadoId) return;
+    function onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") return;
+      const step = e.shiftKey ? 10 : 1;
+      let dx = 0, dy = 0;
+      switch (e.key) {
+        case "ArrowLeft": dx = -step; break;
+        case "ArrowRight": dx = step; break;
+        case "ArrowUp": dy = -step; break;
+        case "ArrowDown": dy = step; break;
+        default: return;
+      }
+      e.preventDefault();
+      const el = estadoRef.current.elementos.find((x) => x.id === selecionadoId);
+      if (!el) return;
+      onChange({
+        ...estadoRef.current,
+        elementos: estadoRef.current.elementos.map((x) =>
+          x.id === selecionadoId ? { ...x, x: x.x + dx, y: x.y + dy } : x,
+        ),
+      });
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selecionadoId, onChange]);
+
+  const scale = fit.escala * zoom;
+
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLDivElement>) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const wrapper = canvasWrapperRef.current;
+      if (!wrapper) return;
+      const rect = wrapper.getBoundingClientRect();
+      // Mouse position relative to wrapper (canvas content)
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      // Convert to canvas coordinates (before zoom)
+      const canvasMouseX = mouseX / scale;
+      const canvasMouseY = mouseY / scale;
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      const newZoom = Math.max(0.1, Math.min(5, zoom * delta));
+      const newScale = fit.escala * newZoom;
+      // New scroll position to keep mouse point fixed on same canvas point
+      const newScrollLeft = canvasMouseX * newScale - mouseX;
+      const newScrollTop = canvasMouseY * newScale - mouseY;
+      const container = rootRef.current;
+      if (container) {
+        container.scrollLeft = Math.max(0, newScrollLeft);
+        container.scrollTop = Math.max(0, newScrollTop);
+      }
+      onZoomPos({ x: newScrollLeft / newScale, y: newScrollTop / newScale });
+    },
+    [zoom, scale, fit.escala, onZoomPos]
+  );
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.button === 1 || (e.button === 0 && (e.shiftKey || e.altKey))) {
+        e.preventDefault();
+        const container = rootRef.current;
+        if (!container) return;
+        isPanningRef.current = true;
+        panStartRef.current = {
+          x: e.clientX,
+          y: e.clientY,
+          scrollLeft: container.scrollLeft,
+          scrollTop: container.scrollTop,
+        };
+        container.style.cursor = "grabbing";
+        const moveHandler = (ev: PointerEvent) => {
+          if (!isPanningRef.current) return;
+          const container2 = rootRef.current;
+          if (!container2) return;
+          const dx = ev.clientX - panStartRef.current.x;
+          const dy = ev.clientY - panStartRef.current.y;
+          container2.scrollLeft = panStartRef.current.scrollLeft - dx;
+          container2.scrollTop = panStartRef.current.scrollTop - dy;
+          onZoomPos({ x: container2.scrollLeft / scale, y: container2.scrollTop / scale });
+        };
+        const upHandler = () => {
+          isPanningRef.current = false;
+          const container2 = rootRef.current;
+          if (container2) container2.style.cursor = zoom > 1 ? "grab" : "default";
+          window.removeEventListener("pointermove", moveHandler);
+          window.removeEventListener("pointerup", upHandler);
+        };
+        window.addEventListener("pointermove", moveHandler);
+        window.addEventListener("pointerup", upHandler);
+      }
+    },
+    [zoom, scale, onZoomPos]
+  );
+
+  useEffect(() => {
+    const container = rootRef.current;
+    if (!container) return;
+    const targetX = zoomPos.x * scale;
+    const targetY = zoomPos.y * scale;
+    if (Math.abs(container.scrollLeft - targetX) > 1 || Math.abs(container.scrollTop - targetY) > 1) {
+      container.scrollLeft = targetX;
+      container.scrollTop = targetY;
+    }
+  }, [zoomPos, scale]);
 
   const selecionado =
     estado.elementos.find((e) => e.id === selecionadoId) ?? null;
@@ -232,28 +358,43 @@ export function ArtStage({
     iniciarDrag(e, id);
   }
 
-  return (
-    <div ref={rootRef} className="flex h-full w-full items-center justify-center overflow-hidden p-2">
+return (
+    <div
+      ref={rootRef}
+      className="art-stage-container h-full w-full"
+      style={{
+        background: "#e2e8f0",
+        cursor: zoom > 1 ? "grab" : "default",
+        overflow: "auto",
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onSelecionar(null);
+      }}
+      onWheel={handleWheel}
+      onPointerDown={handlePointerDown}
+    >
       <div
-        style={{ width: fit.w, height: fit.h, position: "relative" }}
-        className="rounded-2xl shadow-xl ring-1 ring-slate-900/10"
+        ref={canvasWrapperRef}
+        style={{
+          width: estado.largura * scale,
+          height: estado.altura * scale,
+          position: "relative",
+          margin: "auto",
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
+        <Stage
+          ref={stageRef}
+          width={estado.largura}
+          height={estado.altura}
           style={{
-            width: estado.largura,
-            height: estado.altura,
-            transform: `scale(${fit.escala})`,
-            transformOrigin: "top left",
+            transform: `scale(${scale})`,
+            transformOrigin: "0 0",
+          }}
+          onPointerDown={(e) => {
+            if (e.target === e.target.getStage()) onSelecionar(null);
           }}
         >
-          <Stage
-            ref={stageRef}
-            width={estado.largura}
-            height={estado.altura}
-            onPointerDown={(e) => {
-              if (e.target === e.target.getStage()) onSelecionar(null);
-            }}
-          >
             <Layer>
               <Fundo fundo={estado.fundo} largura={estado.largura} altura={estado.altura} />
               {estado.elementos.map((el) => (
@@ -324,7 +465,6 @@ export function ArtStage({
           </Stage>
         </div>
       </div>
-    </div>
   );
 }
 
@@ -408,6 +548,107 @@ function Elemento({
             fill={fill}
             stroke={el.contorno || undefined}
             strokeWidth={el.larguraContorno}
+          />
+        </Group>
+      );
+    }
+    case "triangulo": {
+      const fill = el.cor2
+        ? gradiente(el.cor, el.cor2, el.width, el.height)
+        : el.cor;
+      return (
+        <Group
+          x={el.x}
+          y={el.y}
+          rotation={el.rotation}
+          opacity={el.opacity}
+          onPointerDown={onPointerDown}
+        >
+          <RegularPolygon
+            x={el.width / 2}
+            y={el.height / 2}
+            sides={3}
+            radius={Math.min(el.width, el.height) / 2}
+            fill={fill}
+            stroke={el.contorno || undefined}
+            strokeWidth={el.larguraContorno}
+          />
+        </Group>
+      );
+    }
+    case "estrela": {
+      const fill = el.cor2
+        ? gradiente(el.cor, el.cor2, el.width, el.height)
+        : el.cor;
+      const rExt = Math.min(el.width, el.height) / 2;
+      const rInt = rExt * (el.raioInterno ?? 0.5);
+      return (
+        <Group
+          x={el.x}
+          y={el.y}
+          rotation={el.rotation}
+          opacity={el.opacity}
+          onPointerDown={onPointerDown}
+        >
+          <KonvaStar
+            x={el.width / 2}
+            y={el.height / 2}
+            numPoints={el.pontas ?? 5}
+            innerRadius={rInt}
+            outerRadius={rExt}
+            fill={fill}
+            stroke={el.contorno || undefined}
+            strokeWidth={el.larguraContorno}
+          />
+        </Group>
+      );
+    }
+    case "poligono": {
+      const fill = el.cor2
+        ? gradiente(el.cor, el.cor2, el.width, el.height)
+        : el.cor;
+      return (
+        <Group
+          x={el.x}
+          y={el.y}
+          rotation={el.rotation}
+          opacity={el.opacity}
+          onPointerDown={onPointerDown}
+        >
+          <RegularPolygon
+            x={el.width / 2}
+            y={el.height / 2}
+            sides={el.lados ?? 6}
+            radius={Math.min(el.width, el.height) / 2}
+            fill={fill}
+            stroke={el.contorno || undefined}
+            strokeWidth={el.larguraContorno}
+          />
+        </Group>
+      );
+    }
+    case "seta": {
+      const fill = el.cor2
+        ? gradiente(el.cor, el.cor2, el.width, el.height)
+        : el.cor;
+      return (
+        <Group
+          x={el.x}
+          y={el.y}
+          rotation={el.rotation}
+          opacity={el.opacity}
+          onPointerDown={onPointerDown}
+        >
+          <KonvaArrow
+            x={0}
+            y={el.height / 2}
+            points={[0, 0, el.width - (el.pontaComprimento ?? 30), 0]}
+            pointerLength={el.pontaComprimento ?? 30}
+            pointerWidth={el.pontaLargura ?? 40}
+            fill={fill}
+            stroke={el.contorno || undefined}
+            strokeWidth={el.larguraContorno}
+            lineCap="round"
           />
         </Group>
       );

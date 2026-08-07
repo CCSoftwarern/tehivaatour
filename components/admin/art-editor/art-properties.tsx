@@ -13,6 +13,10 @@ import type {
   ArtLinha,
   ArtRetangulo,
   ArtTexto,
+  ArtTriangulo,
+  ArtEstrela,
+  ArtPoligono,
+  ArtSeta,
 } from "@/lib/arte/tipos";
 import { ImageUpload } from "../imagem-upload";
 import { btnDanger, btnSecondary, inputClass, labelClass } from "../ui";
@@ -73,6 +77,18 @@ export function ArtProperties({
       {selecionado.tipo === "circulo" && (
         <PainelCirculo el={selecionado} onAtualizar={onAtualizar} />
       )}
+      {selecionado.tipo === "triangulo" && (
+        <PainelTriangulo el={selecionado} onAtualizar={onAtualizar} />
+      )}
+      {selecionado.tipo === "estrela" && (
+        <PainelEstrela el={selecionado} onAtualizar={onAtualizar} />
+      )}
+      {selecionado.tipo === "poligono" && (
+        <PainelPoligono el={selecionado} onAtualizar={onAtualizar} />
+      )}
+      {selecionado.tipo === "seta" && (
+        <PainelSeta el={selecionado} onAtualizar={onAtualizar} />
+      )}
       {selecionado.tipo === "linha" && (
         <PainelLinha el={selecionado} onAtualizar={onAtualizar} />
       )}
@@ -103,6 +119,10 @@ function rotuloTipo(tipo: ArtElemento["tipo"]): string {
     imagem: "Imagem",
     retangulo: "Retângulo",
     circulo: "Círculo",
+    triangulo: "Triângulo",
+    estrela: "Estrela",
+    poligono: "Polígono",
+    seta: "Seta",
     linha: "Linha",
   };
   return map[tipo];
@@ -466,6 +486,308 @@ function PainelLinha({
           className={inputClass}
         />
       </div>
+      <CampoComum el={el} onAtualizar={onAtualizar} />
+    </div>
+  );
+}
+
+function PainelTriangulo({
+  el,
+  onAtualizar,
+}: {
+  el: ArtTriangulo;
+  onAtualizar: Props["onAtualizar"];
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={labelClass}>Cor</label>
+        <CorInput valor={el.cor} onChange={(c) => onAtualizar(el.id, { cor: c })} />
+      </div>
+      <div>
+        <label className="flex items-center gap-2 text-sm font-medium text-ink/80">
+          <input
+            type="checkbox"
+            checked={Boolean(el.cor2)}
+            onChange={(e) =>
+              onAtualizar(el.id, { cor2: e.target.checked ? "#0b2447" : undefined })
+            }
+            className="h-4 w-4 accent-[var(--cor-primaria)]"
+          />
+          Gradiente
+        </label>
+        {el.cor2 && (
+          <div className="mt-2">
+            <CorInput
+              valor={el.cor2}
+              onChange={(c) => onAtualizar(el.id, { cor2: c })}
+            />
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelClass}>Contorno (px)</label>
+          <input
+            type="number"
+            min={0}
+            max={40}
+            value={el.larguraContorno}
+            onChange={(e) => onAtualizar(el.id, { larguraContorno: Number(e.target.value) || 0 })}
+            className={inputClass}
+          />
+        </div>
+      </div>
+      {el.larguraContorno > 0 && (
+        <div>
+          <label className={labelClass}>Cor do contorno</label>
+          <CorInput
+            valor={el.contorno || "#000000"}
+            onChange={(c) => onAtualizar(el.id, { contorno: c })}
+          />
+        </div>
+      )}
+      <CampoComum el={el} onAtualizar={onAtualizar} />
+    </div>
+  );
+}
+
+function PainelEstrela({
+  el,
+  onAtualizar,
+}: {
+  el: ArtEstrela;
+  onAtualizar: Props["onAtualizar"];
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={labelClass}>Cor</label>
+        <CorInput valor={el.cor} onChange={(c) => onAtualizar(el.id, { cor: c })} />
+      </div>
+      <div>
+        <label className="flex items-center gap-2 text-sm font-medium text-ink/80">
+          <input
+            type="checkbox"
+            checked={Boolean(el.cor2)}
+            onChange={(e) =>
+              onAtualizar(el.id, { cor2: e.target.checked ? "#0b2447" : undefined })
+            }
+            className="h-4 w-4 accent-[var(--cor-primaria)]"
+          />
+          Gradiente
+        </label>
+        {el.cor2 && (
+          <div className="mt-2">
+            <CorInput
+              valor={el.cor2}
+              onChange={(c) => onAtualizar(el.id, { cor2: c })}
+            />
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelClass}>Pontas</label>
+          <input
+            type="number"
+            min={3}
+            max={20}
+            value={el.pontas}
+            onChange={(e) => onAtualizar(el.id, { pontas: Math.max(3, Number(e.target.value) || 3) })}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Raio interno (0-1)</label>
+          <input
+            type="number"
+            min={0}
+            max={1}
+            step={0.05}
+            value={el.raioInterno}
+            onChange={(e) => onAtualizar(el.id, { raioInterno: Math.min(1, Math.max(0, Number(e.target.value) || 0.5)) })}
+            className={inputClass}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelClass}>Contorno (px)</label>
+          <input
+            type="number"
+            min={0}
+            max={40}
+            value={el.larguraContorno}
+            onChange={(e) => onAtualizar(el.id, { larguraContorno: Number(e.target.value) || 0 })}
+            className={inputClass}
+          />
+        </div>
+      </div>
+      {el.larguraContorno > 0 && (
+        <div>
+          <label className={labelClass}>Cor do contorno</label>
+          <CorInput
+            valor={el.contorno || "#000000"}
+            onChange={(c) => onAtualizar(el.id, { contorno: c })}
+          />
+        </div>
+      )}
+      <CampoComum el={el} onAtualizar={onAtualizar} />
+    </div>
+  );
+}
+
+function PainelPoligono({
+  el,
+  onAtualizar,
+}: {
+  el: ArtPoligono;
+  onAtualizar: Props["onAtualizar"];
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={labelClass}>Cor</label>
+        <CorInput valor={el.cor} onChange={(c) => onAtualizar(el.id, { cor: c })} />
+      </div>
+      <div>
+        <label className="flex items-center gap-2 text-sm font-medium text-ink/80">
+          <input
+            type="checkbox"
+            checked={Boolean(el.cor2)}
+            onChange={(e) =>
+              onAtualizar(el.id, { cor2: e.target.checked ? "#0b2447" : undefined })
+            }
+            className="h-4 w-4 accent-[var(--cor-primaria)]"
+          />
+          Gradiente
+        </label>
+        {el.cor2 && (
+          <div className="mt-2">
+            <CorInput
+              valor={el.cor2}
+              onChange={(c) => onAtualizar(el.id, { cor2: c })}
+            />
+          </div>
+        )}
+      </div>
+      <div>
+        <label className={labelClass}>Lados</label>
+        <input
+          type="number"
+          min={3}
+          max={20}
+          value={el.lados}
+          onChange={(e) => onAtualizar(el.id, { lados: Math.max(3, Number(e.target.value) || 3) })}
+          className={inputClass}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelClass}>Contorno (px)</label>
+          <input
+            type="number"
+            min={0}
+            max={40}
+            value={el.larguraContorno}
+            onChange={(e) => onAtualizar(el.id, { larguraContorno: Number(e.target.value) || 0 })}
+            className={inputClass}
+          />
+        </div>
+      </div>
+      {el.larguraContorno > 0 && (
+        <div>
+          <label className={labelClass}>Cor do contorno</label>
+          <CorInput
+            valor={el.contorno || "#000000"}
+            onChange={(c) => onAtualizar(el.id, { contorno: c })}
+          />
+        </div>
+      )}
+      <CampoComum el={el} onAtualizar={onAtualizar} />
+    </div>
+  );
+}
+
+function PainelSeta({
+  el,
+  onAtualizar,
+}: {
+  el: ArtSeta;
+  onAtualizar: Props["onAtualizar"];
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={labelClass}>Cor</label>
+        <CorInput valor={el.cor} onChange={(c) => onAtualizar(el.id, { cor: c })} />
+      </div>
+      <div>
+        <label className="flex items-center gap-2 text-sm font-medium text-ink/80">
+          <input
+            type="checkbox"
+            checked={Boolean(el.cor2)}
+            onChange={(e) =>
+              onAtualizar(el.id, { cor2: e.target.checked ? "#0b2447" : undefined })
+            }
+            className="h-4 w-4 accent-[var(--cor-primaria)]"
+          />
+          Gradiente
+        </label>
+        {el.cor2 && (
+          <div className="mt-2">
+            <CorInput
+              valor={el.cor2}
+              onChange={(c) => onAtualizar(el.id, { cor2: c })}
+            />
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelClass}>Comprimento da ponta</label>
+          <input
+            type="number"
+            min={10}
+            max={200}
+            value={el.pontaComprimento}
+            onChange={(e) => onAtualizar(el.id, { pontaComprimento: Math.max(10, Number(e.target.value) || 30) })}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Largura da ponta</label>
+          <input
+            type="number"
+            min={10}
+            max={200}
+            value={el.pontaLargura}
+            onChange={(e) => onAtualizar(el.id, { pontaLargura: Math.max(10, Number(e.target.value) || 40) })}
+            className={inputClass}
+          />
+        </div>
+      </div>
+      <div>
+        <label className={labelClass}>Contorno (px)</label>
+        <input
+          type="number"
+          min={0}
+          max={40}
+          value={el.larguraContorno}
+          onChange={(e) => onAtualizar(el.id, { larguraContorno: Number(e.target.value) || 0 })}
+          className={inputClass}
+        />
+      </div>
+      {el.larguraContorno > 0 && (
+        <div>
+          <label className={labelClass}>Cor do contorno</label>
+          <CorInput
+            valor={el.contorno || "#000000"}
+            onChange={(c) => onAtualizar(el.id, { contorno: c })}
+          />
+        </div>
+      )}
       <CampoComum el={el} onAtualizar={onAtualizar} />
     </div>
   );

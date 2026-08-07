@@ -1,4 +1,13 @@
-export type ArtTipo = "texto" | "imagem" | "retangulo" | "circulo" | "linha";
+export type ArtTipo =
+  | "texto"
+  | "imagem"
+  | "retangulo"
+  | "circulo"
+  | "linha"
+  | "triangulo"
+  | "estrela"
+  | "poligono"
+  | "seta";
 
 export interface ArtBase {
   id: string;
@@ -58,12 +67,53 @@ export interface ArtLinha extends ArtBase {
   larguraContorno: number;
 }
 
+export interface ArtTriangulo extends ArtBase {
+  tipo: "triangulo";
+  cor: string;
+  cor2?: string;
+  contorno?: string;
+  larguraContorno: number;
+}
+
+export interface ArtEstrela extends ArtBase {
+  tipo: "estrela";
+  cor: string;
+  cor2?: string;
+  contorno?: string;
+  larguraContorno: number;
+  pontas: number;
+  raioInterno: number;
+}
+
+export interface ArtPoligono extends ArtBase {
+  tipo: "poligono";
+  cor: string;
+  cor2?: string;
+  contorno?: string;
+  larguraContorno: number;
+  lados: number;
+}
+
+export interface ArtSeta extends ArtBase {
+  tipo: "seta";
+  cor: string;
+  cor2?: string;
+  contorno?: string;
+  larguraContorno: number;
+  pontaComprimento: number;
+  pontaLargura: number;
+}
+
 export type ArtElemento =
   | ArtTexto
   | ArtImagem
   | ArtRetangulo
   | ArtCirculo
-  | ArtLinha;
+  | ArtLinha
+  | ArtTriangulo
+  | ArtEstrela
+  | ArtPoligono
+  | ArtSeta;
 
 export type ArtFundo =
   | { tipo: "cor"; cor: string }

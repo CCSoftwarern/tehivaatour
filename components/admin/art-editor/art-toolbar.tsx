@@ -4,11 +4,13 @@ import { useRef } from "react";
 import {
   ArrowDownToLine,
   ArrowUpToLine,
+  ArrowUpRight,
   Check,
   Circle,
   Copy,
   CopyPlus,
   Download,
+  Hexagon,
   ImagePlus,
   LayoutTemplate,
   Minus,
@@ -16,6 +18,8 @@ import {
   Redo2,
   Save,
   Square,
+  Star,
+  Triangle,
   Trash2,
   Type,
   Undo2,
@@ -31,7 +35,7 @@ type Props = {
   onTamanho: (w: number, h: number) => void;
   onAdicionarTexto: () => void;
   onArquivoImagem: (file: File) => void;
-  onAdicionarForma: (tipo: "retangulo" | "circulo" | "linha") => void;
+  onAdicionarForma: (tipo: "retangulo" | "circulo" | "linha" | "triangulo" | "estrela" | "poligono" | "seta") => void;
   podeDesfazer: boolean;
   podeRefazer: boolean;
   onDesfazer: () => void;
@@ -48,6 +52,9 @@ type Props = {
   onExcluirSelecao: () => void;
   onFrenteSelecao: () => void;
   onTrasSelecao: () => void;
+  zoom?: number;
+  onZoom?: (z: number) => void;
+  onZoomPos?: (pos: { x: number; y: number }) => void;
 };
 
 const botaoAcao =
@@ -104,6 +111,18 @@ export function ArtToolbar(props: Props) {
       </button>
       <button type="button" onClick={() => props.onAdicionarForma("circulo")} className={botaoAcao}>
         <Circle size={14} /> Círculo
+      </button>
+      <button type="button" onClick={() => props.onAdicionarForma("triangulo")} className={botaoAcao}>
+        <Triangle size={14} /> Triângulo
+      </button>
+      <button type="button" onClick={() => props.onAdicionarForma("estrela")} className={botaoAcao}>
+        <Star size={14} /> Estrela
+      </button>
+      <button type="button" onClick={() => props.onAdicionarForma("poligono")} className={botaoAcao}>
+        <Hexagon size={14} /> Polígono
+      </button>
+      <button type="button" onClick={() => props.onAdicionarForma("seta")} className={botaoAcao}>
+        <ArrowUpRight size={14} /> Seta
       </button>
       <button type="button" onClick={() => props.onAdicionarForma("linha")} className={botaoAcao}>
         <Minus size={14} /> Linha
