@@ -1,19 +1,19 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
 import {
   ArrowDown,
   ArrowUp,
-  ClipboardPaste,
-  ImagePlus,
-  Loader2,
+  Plane,
+  Ship,
+  Shield,
+  MapPin,
+  Hotel,
+  Briefcase,
   Trash2,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { novoId } from "@/lib/arte/constantes";
 import { brl, valorDoItem } from "@/lib/orcamento";
-import type { OrcamentoItem } from "@/lib/types";
+import type { OrcamentoItem, TipoProdutoOrcamento } from "@/lib/types";
 import { inputClass, labelClass } from "../ui";
 
 type Props = {
@@ -26,6 +26,25 @@ type Props = {
   ultimo: boolean;
 };
 
+const TIPOS_PRODUTO: { valor: TipoProdutoOrcamento; rotulo: string; icone: React.ReactNode }[] = [
+  { valor: "aereo", rotulo: "Aéreo", icone: <Plane size={20} /> },
+  { valor: "aereo_hotel", rotulo: "Aéreo + Hotel", icone: <Hotel size={20} /> },
+  { valor: "navio", rotulo: "Navio / Cruzeiro", icone: <Ship size={20} /> },
+  { valor: "seguro_viagem", rotulo: "Seguro Viagem", icone: <Shield size={20} /> },
+  { valor: "receptivo", rotulo: "Receptivo / Transfer", icone: <MapPin size={20} /> },
+  { valor: "somente_aereo", rotulo: "Somente Aéreo", icone: <Briefcase size={20} /> },
+];
+
+function IconeProduto({ tipo }: { tipo?: TipoProdutoOrcamento }) {
+  const t = TIPOS_PRODUTO.find((x) => x.valor === tipo);
+  if (!t) return <div className="w-10 h-10" />;
+  return (
+    <div className="flex items-center justify-center w-full h-full text-primary">
+      {t.icone}
+    </div>
+  );
+}
+
 export function OrcamentoItemLinha({
   item,
   onMudar,
@@ -35,53 +54,8 @@ export function OrcamentoItemLinha({
   primeiro,
   ultimo,
 }: Props) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState("");
-
-  async function enviarImagem(file: File | undefined | null) {
-    setErro("");
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setErro("Cole ou selecione uma imagem.");
-      return;
-    }
-    setEnviando(true);
-    try {
-      const supabase = createClient();
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const caminho = `orcamentos/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage
-        .from("imagens")
-        .upload(caminho, file, { upsert: true });
-      if (error) throw error;
-      const { data } = supabase.storage.from("imagens").getPublicUrl(caminho);
-      onMudar({ ...item, imagem: data.publicUrl });
-    } catch (e) {
-      setErro(
-        e && typeof e === "object" && "message" in e
-          ? String(e.message)
-          : "Falha ao enviar a imagem.",
-      );
-    } finally {
-      setEnviando(false);
-      if (inputRef.current) inputRef.current.value = "";
-    }
-  }
-
-  function handlePaste(e: React.ClipboardEvent) {
-    const file = e.clipboardData?.files?.[0];
-    if (file) {
-      e.preventDefault();
-      enviarImagem(file);
-    }
-  }
-
   return (
-    <div
-      onPaste={handlePaste}
-      className="rounded-2xl border border-line bg-white p-4 shadow-sm"
-    >
+    <div className="rounded-2xl border border-line bg-white p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="text-xs font-bold uppercase tracking-wide text-ink/40">
           Item {item.id.slice(0, 4).toUpperCase()}
@@ -139,55 +113,35 @@ export function OrcamentoItemLinha({
         ))}
       </div>
 
+      <div className="mt-3 flex items-center gap-2">
+        <span className="text-xs font-medium text-ink/50">Tipo de produto:</span>
+        <select
+          value={item.tipoProduto ?? ""}
+          onChange={(e) => onMudar({ ...item, tipoProduto: e.target.value as TipoProdutoOrcamento || undefined })}
+          className={`${inputClass} w-48`}
+        >
+          <option value="">— Selecione —</option>
+          {TIPOS_PRODUTO.map((op) => (
+            <option key={op.valor} value={op.valor}>
+              {op.rotulo}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="mt-3 flex flex-col gap-4 sm:flex-row">
         <div className="shrink-0">
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => enviarImagem(e.target.files?.[0])}
-          />
-          {item.imagem ? (
-            <div
-              className={`relative overflow-hidden rounded-xl border border-line ${
-                item.tipo === "imagem" ? "h-44 w-64" : "h-24 w-36"
-              }`}
-            >
-              <Image
-                src={item.imagem}
-                alt="Imagem do item"
-                fill
-                sizes={item.tipo === "imagem" ? "256px" : "144px"}
-                className="object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => onMudar({ ...item, imagem: null })}
-                className="absolute right-1 top-1 rounded-full bg-white/90 p-1 text-red-600 shadow hover:bg-white"
-                title="Remover imagem"
-              >
-                <Trash2 size={12} />
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              disabled={enviando}
-              className={`grid place-items-center rounded-xl border-2 border-dashed border-line bg-surface text-ink/40 hover:border-primary hover:text-primary transition-colors ${
-                item.tipo === "imagem" ? "h-44 w-64" : "h-24 w-36"
-              }`}
-            >
-              {enviando ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                <ImagePlus size={20} />
-              )}
-            </button>
-          )}
+          <div className="relative overflow-hidden rounded-xl border border-line bg-white h-24 w-36">
+            <IconeProduto tipo={item.tipoProduto} />
+          </div>
           <p className="mt-1 flex items-center gap-1 text-[11px] text-ink/40">
-            <ClipboardPaste size={11} /> Clique ou cole (Ctrl+V)
+            {item.tipoProduto ? (
+              <>
+                <span>{TIPOS_PRODUTO.find((t) => t.valor === item.tipoProduto)?.rotulo}</span>
+              </>
+            ) : (
+              <>Selecione o tipo de produto</>
+            )}
           </p>
         </div>
 
@@ -245,8 +199,6 @@ export function OrcamentoItemLinha({
         Valor do item:{" "}
         <span className="font-bold text-primary-dark">{brl(valorDoItem(item))}</span>
       </p>
-
-      {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
     </div>
   );
 }

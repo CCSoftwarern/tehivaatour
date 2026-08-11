@@ -108,12 +108,12 @@ export default async function PacoteDetalhePage({
           </div>
 
           {descricao && (
-            <p className="mt-6 leading-relaxed text-ink/75 whitespace-pre-line">
+            <p className="mt-6 leading-relaxed text-ink/75 whitespace-normal break-words">
               {descricao}
             </p>
           )}
 
-          <div className="mt-8 rounded-2xl bg-white border border-line p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+          <div className="mt-8 rounded-2xl bg-white border border-line p-6 flex flex-col sm:flex-row flex-wrap sm:items-center sm:justify-between gap-5">
             <div>
               {pacote.preco !== null ? (
                 <>

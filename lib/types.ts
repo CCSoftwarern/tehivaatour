@@ -84,9 +84,18 @@ export interface Arte {
 
 export type TipoItemOrcamento = "padrao" | "imagem";
 
+export type TipoProdutoOrcamento =
+  | "aereo"
+  | "aereo_hotel"
+  | "navio"
+  | "seguro_viagem"
+  | "receptivo"
+  | "somente_aereo";
+
 export interface OrcamentoItem {
   id: string;
   tipo: TipoItemOrcamento;
+  tipoProduto?: TipoProdutoOrcamento;
   descricao: string;
   tarifa: number;
   taxas: number;
