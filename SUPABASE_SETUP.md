@@ -147,6 +147,56 @@ create table if not exists public.orcamentos (
 -- Migração: adiciona desconto em bancos que já criaram a tabela antes
 alter table public.orcamentos add column if not exists desconto numeric not null default 0;
 
+-- Clientes (cadastro reutilizado pelas vendas)
+create table if not exists public.clientes (
+  id uuid primary key default uuid_generate_v4(),
+  nome text not null default '',
+  cpf text,
+  rg text,
+  passaporte text,
+  email text,
+  telefone text,
+  data_nascimento date,
+  nacionalidade text,
+  estado_civil text,
+  profissao text,
+  endereco text,
+  numero text,
+  complemento text,
+  bairro text,
+  cidade text,
+  uf text,
+  cep text,
+  observacoes text,
+  ativo boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Vendas (pacotes e turísticos já vendidos)
+-- Cálculo por item: tarifa + percentual − desconto − abatimento + taxas
+create table if not exists public.vendas (
+  id uuid primary key default uuid_generate_v4(),
+  numero text not null default '',
+  cliente_id uuid references public.clientes (id) on delete set null,
+  orcamento_id uuid references public.orcamentos (id) on delete set null,
+  pacote_id uuid references public.pacotes (id) on delete set null,
+  status text not null default 'aberta' check (status in ('aberta', 'parcial', 'paga', 'cancelada')),
+  pacote_nome text,
+  destino text,
+  data_venda date,
+  data_viagem date,
+  data_retorno date,
+  quantidade_pax integer not null default 1,
+  itens jsonb not null default '[]'::jsonb,
+  comissoes jsonb not null default '[]'::jsonb,
+  valor_pago numeric not null default 0,
+  forma_pagamento text,
+  observacoes text not null default '',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 insert into public.contadores (chave, valor)
 values ('visitas', 0)
 on conflict (chave) do nothing;
@@ -172,6 +222,12 @@ create index if not exists idx_promocoes_ativo on public.promocoes (ativo);
 create index if not exists idx_pacotes_slug on public.pacotes (slug);
 create index if not exists idx_pacotes_categoria on public.pacotes (categoria);
 create index if not exists idx_servicos_ordem on public.servicos (ordem);
+create index if not exists idx_clientes_nome on public.clientes (nome);
+create unique index if not exists idx_clientes_cpf on public.clientes (cpf)
+  where cpf is not null and cpf <> '';
+create index if not exists idx_vendas_cliente on public.vendas (cliente_id);
+create index if not exists idx_vendas_status on public.vendas (status);
+create index if not exists idx_vendas_data_viagem on public.vendas (data_viagem);
 
 -- =============================================================
 -- RLS
@@ -186,6 +242,8 @@ alter table public.promocoes enable row level security;
 alter table public.pacotes enable row level security;
 alter table public.servicos enable row level security;
 alter table public.contatos enable row level security;
+alter table public.clientes enable row level security;
+alter table public.vendas enable row level security;
 
 -- Público (site): só leitura
 create policy "config leitura publica" on public.configuracoes
@@ -227,6 +285,15 @@ create policy "servicos admin escrita" on public.servicos
 create policy "contatos admin escrita" on public.contatos
   for all to authenticated using (true) with check (true);
 
+-- Clientes e vendas são dados internos: só o admin autenticado acessa
+drop policy if exists "clientes admin" on public.clientes;
+drop policy if exists "vendas admin" on public.vendas;
+
+create policy "clientes admin" on public.clientes
+  for all to authenticated using (true) with check (true);
+create policy "vendas admin" on public.vendas
+  for all to authenticated using (true) with check (true);
+
 -- =============================================================
 -- Storage (bucket público de imagens)
 -- =============================================================
@@ -254,6 +321,32 @@ create policy "imagens delete autenticado" on storage.objects
 > **Importante:** o storage precisar ter RLS. Se o bucket ainda não existir, o
 > insert acima o cria. Verifique em **Storage** que o bucket `imagens` está
 > **Public** (caso não esteja, rode o insert acima ou marque manualmente).
+
+### Contas bancárias e entradas
+
+Rode o script `sql/contas-entradas.sql` (também pode colar o conteúdo dele aqui):
+
+```sql
+-- está em sql/contas-entradas.sql
+```
+
+Ele cria:
+
+- **`contas`** — nome, banco, agência, número, tipo (corrente/poupança), titular,
+  ativa e observações. É onde o dinheiro cai.
+- **`entradas`** — cada pagamento parcial de uma venda: valor, data, conta que
+  recebeu, forma de pagamento e observações.
+
+Regras importantes:
+
+- A **soma das entradas** é o valor pago da venda. O campo `vendas.valor_pago`
+  continua existindo por compatibilidade e é mantido em cache pelo formulário, mas
+  não é mais editado à mão.
+- As entradas têm RLS igual às vendas: só usuário autenticado enxerga.
+- Para converter as vendas que já existiam, o `sql/contas-entradas.sql` traz um
+  `insert` comentado no final que transforma `valor_pago` em uma entrada única.
+- Vendas apagadas leva as entradas junto (`on delete cascade`); contas apagadas
+  deixam as entradas sem conta (`on delete set null`) em vez de apagar o histórico.
 
 ## 3. Criar o usuário admin
 
@@ -284,8 +377,9 @@ Reinicie o servidor (`npm run dev`) após salvar o `.env.local`.
 
 - Abra `http://localhost:3000/pt/admin/login`
 - Entre com o e-mail/senha criados no passo 3.
-- No admin você gerencia: promoções, pacotes, serviços, mensagens, o tema do
-  site (cores e textos) e o **editor de arte** (posts para Instagram/WhatsApp).
+- No admin você gerencia: promoções, pacotes, serviços, mensagens, clientes,
+  vendas, o tema do site (cores e textos) e o **editor de arte** (posts para
+  Instagram/WhatsApp).
 
 ## 6. Deploy
 

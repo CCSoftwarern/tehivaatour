@@ -51,6 +51,7 @@ export function PromocaoForm({ lang, promocao }: Props) {
         setPending(false);
         return;
       }
+      setPending(false);
       router.push(`/${lang}/admin/promocoes`);
       router.refresh();
     } catch {

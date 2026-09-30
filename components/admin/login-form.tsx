@@ -32,6 +32,7 @@ export function LoginForm({ lang }: Props) {
         setPending(false);
         return;
       }
+      setPending(false);
       router.push(`/${lang}/admin`);
       router.refresh();
     } catch {

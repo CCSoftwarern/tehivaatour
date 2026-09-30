@@ -14,7 +14,11 @@ type Props = {
     | "hero_imagens"
     | "logos"
     | "artes"
-    | "orcamentos";
+    | "orcamentos"
+    | "clientes"
+    | "vendas"
+    | "contas"
+    | "entradas";
   id: string;
   redirectTo?: string;
 };

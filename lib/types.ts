@@ -129,3 +129,103 @@ export interface Logo {
   ativo: boolean;
   created_at: string;
 }
+
+export interface Cliente {
+  id: string;
+  nome: string;
+  cpf: string | null;
+  rg: string | null;
+  passaporte: string | null;
+  email: string | null;
+  telefone: string | null;
+  data_nascimento: string | null;
+  nacionalidade: string | null;
+  estado_civil: string | null;
+  profissao: string | null;
+  endereco: string | null;
+  numero: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  uf: string | null;
+  cep: string | null;
+  observacoes: string | null;
+  ativo: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TipoItemVenda = "padrao" | "imagem";
+
+export interface VendaItem {
+  id: string;
+  tipo: TipoItemVenda;
+  tipoProduto?: TipoProdutoOrcamento;
+  descricao: string;
+  tarifa: number;
+  taxas: number;
+  desconto: number;
+  abatimento: number;
+  percentual: number;
+  imagem: string | null;
+}
+
+export type PapelComissao = "vendedor" | "supervisor" | "agencia" | "indicacao";
+
+export interface Comissao {
+  id: string;
+  pessoa: string;
+  papel: PapelComissao;
+  percentual: number;
+}
+
+export type StatusVenda = "aberta" | "parcial" | "paga" | "cancelada";
+
+export interface Venda {
+  id: string;
+  numero: string;
+  cliente_id: string | null;
+  orcamento_id: string | null;
+  status: StatusVenda;
+  pacote_id: string | null;
+  pacote_nome: string | null;
+  destino: string | null;
+  data_venda: string | null;
+  data_viagem: string | null;
+  data_retorno: string | null;
+  quantidade_pax: number;
+  itens: VendaItem[];
+  comissoes: Comissao[];
+  valor_pago: number;
+  forma_pagamento: string | null;
+  observacoes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TipoConta = "corrente" | "poupanca";
+
+export interface Conta {
+  id: string;
+  nome: string;
+  banco: string | null;
+  agencia: string | null;
+  numero: string | null;
+  tipo: TipoConta;
+  titular: string | null;
+  ativa: boolean;
+  observacoes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Entrada {
+  id: string;
+  venda_id: string;
+  valor: number;
+  data: string | null;
+  conta_id: string | null;
+  forma_pagamento: string | null;
+  observacoes: string | null;
+  created_at: string;
+}

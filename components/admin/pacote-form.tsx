@@ -63,6 +63,7 @@ export function PacoteForm({ lang, pacote }: Props) {
         setPending(false);
         return;
       }
+      setPending(false);
       router.push(`/${lang}/admin/pacotes`);
       router.refresh();
     } catch {

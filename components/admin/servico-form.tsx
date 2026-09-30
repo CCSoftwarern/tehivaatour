@@ -46,6 +46,7 @@ export function ServicoForm({ lang, servico }: Props) {
         setPending(false);
         return;
       }
+      setPending(false);
       router.push(`/${lang}/admin/servicos`);
       router.refresh();
     } catch {

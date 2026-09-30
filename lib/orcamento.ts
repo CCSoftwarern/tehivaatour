@@ -1,8 +1,10 @@
 import { GState, jsPDF } from "jspdf";
 import type { ConfigRecord } from "./config";
+import { brl } from "./moeda";
 import type { Orcamento, OrcamentoItem } from "./types";
 
 export type { Orcamento, OrcamentoItem };
+export { brl };
 
 export function novoNumeroOrcamento(): string {
   const ano = new Date().getFullYear();
@@ -48,13 +50,6 @@ export function normalizarItens(dados: unknown): OrcamentoItem[] {
     });
   }
   return saida;
-}
-
-export function brl(valor: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valor || 0);
 }
 
 function rgb(hex: string): [number, number, number] {

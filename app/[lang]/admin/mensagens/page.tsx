@@ -5,12 +5,7 @@ import type { Contato } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminMensagens({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
+export default async function AdminMensagens() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("contatos")
