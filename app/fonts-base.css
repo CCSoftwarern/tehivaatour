@@ -1,0 +1,30 @@
+/*
+ * Fontes auto-hospedadas.
+ *
+ * Antes estas vinham de next/font/google, que baixa o CSS da fonte durante o
+ * build. No Vercel isso quebrou o deploy com "module-not-found" em
+ * playfair_display. Com os arquivos no repo o build não depende de rede.
+ *
+ * Fontes baixadas do Google Fonts, subset latin (cobre ã, ç, é, õ, á...).
+ */
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/geist-var.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/geist-mono-var.woff2") format("woff2");
+}
+
+:root {
+  --font-geist-sans: "Geist";
+  --font-geist-mono: "Geist Mono";
+}
